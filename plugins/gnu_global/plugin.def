@@ -1,0 +1,17 @@
+﻿[Plugin]
+Id={10C8A56E-95F2-4E42-A4D0-DD39CB94752B}
+Name=GNU Globalプラグイン
+Description=GNU Globalによる検索
+Type=wsh
+Author=voi
+Version=0.0.0.1
+Url=localhost
+
+[Command]
+C[1]=global_tags.js
+C[1].Label=定義、参照検索
+C[2]=global_grep.js
+C[2].Label=Grep
+
+[Wsh]
+UesCache=1
