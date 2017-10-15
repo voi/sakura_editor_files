@@ -8,27 +8,88 @@
     user_env('HOME')
   ];
 
-  var get_snippets = function() {
-    var filter = /\.snip$/;
-    var items = [];
+  var strftime = function(format) {
+    var now = new Date();
 
-    for(var i = 0, len = snippet_dirs.length; i < len; ++i) {
-      var dir = fsys.BuildPath(snippet_dirs[i], 'snippets');
+    return format.replace(/%[YmdHMS]/g, function(c) {
+      switch(c) {
+        case '%Y':
+          return now.getYear().toString();
+        case '%m':
+          return (now.getMonth() + 100).toString().slice(1);
+        case '%d':
+          return (now.getDate() + 100).toString().slice(1);
+        case '%H':
+          return (now.getHours() + 100).toString().slice(1);
+        case '%M':
+          return (now.getMinutes() + 100).toString().slice(1);
+        case '%S':
+          return (now.getSeconds() + 100).toString().slice(1);
+        default:
+          return c;
+      }
+    });
+  };
 
-      if(fsys.FolderExists(dir)) {
-        var folder = fsys.GetFolder(dir);
+  var parse_snippet_body = function(line) {
+    return line.replace(/\$\{`(.+?)`\}/g, function(c, p1) {
+      return eval(p1);
+    }).replace(/\$\{\d+?\}/g, '');
+  };
 
-        for(var itr = new Enumerator(folder.Files); !itr.atEnd(); itr.moveNext()) {
-          var file = itr.item();
+  var parse_snippets = function(filepath) {
+    var file = fsys.GetFile(filepath);
+    var lines = file.ReadAll().split('\n');
 
-          if(filter.test(file)) {
-            items.push({ 'name': fsys.GetBaseName(file), 'path': fsys.GetAbsolutePathName(file) });
-          }
-        }
+    file.Close();
+
+    var pattern_snip_name = /^snippet\s+(\S+).*/;
+    var pattern_snip_body = /^(?:    |\t)(.*)/;
+    var snippets = {};
+    var last_name = '';
+
+    for(var i = 0, len = lines.length; i < len; ++i) {
+      var line = lines[i];
+
+      if(pattern_snip_name.test(line)) {
+        last_name = RegExp.$1;
+
+        snippets[last_name] = [];
+      }
+      else if(pattern_snip_body.test(line) && (last_name.length > 0)) {
+        snippets[last_name].push(parse_snippet_body(RegExp.$1));
       }
     }
 
-    return items;
+    return snippets;
+  };
+
+  var enum_snippets = function(dir_path, items) {
+    var folder = fsys.GetFolder(dir_path);
+
+    for(var itr = new Enumerator(folder.Files); !itr.atEnd(); itr.moveNext()) {
+      var file = itr.item();
+
+      items.push({ 'name': fsys.GetBaseName(file), 'path': fsys.GetAbsolutePathName(file) });
+    }
+  };
+
+  var get_snippets = function() {
+    var items = [];
+    var dir_path;
+
+    for(var i = 0, len = snippet_dirs.length; i < len; ++i) {
+      dir_path = fsys.BuildPath(snippet_dirs[i], 'snippets');
+
+      if(fsys.FolderExists(dir_path)) {
+        enum_snippets(dir_path, items);
+      }
+
+      dir_path = fsys.BuildPath(snippet_dirs[i], 'sakura\\snippets');
+
+      if(fsys.FolderExists(dir_path)) {
+        enum_snippets(dir_path, items);
+      }
   };
 
   var items_to_menu = function(items) {
@@ -47,7 +108,7 @@
     return ;
   }
 
-  var index1 = Editor.CreateMenu(1, items_to_menu(items));
+  var index1 = CreateMenu(1, items_to_menu(items));
 
   if(index1 <= 0) {
     return ;
