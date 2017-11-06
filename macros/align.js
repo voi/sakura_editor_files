@@ -34,7 +34,7 @@
   };
 
   var get_alignment_width = function(tokens_list) {
-    var width = 0;
+    var width = -1;
 
     for(var i = 0, len = tokens_list.length; i < len; ++i) {
       if(tokens_list[i].length > 1) {
@@ -113,7 +113,8 @@
       'sub': '\f$&',
       'tabstop': 1,
       'padding' : padding_space,
-      'width': 0
+      'width': 0,
+      'with_space': true
     };
     var is_global  = false;
     var use_regexp = false;
@@ -158,7 +159,7 @@
 
     context.width = get_alignment_width(tokens_list);
 
-    while(context.width > 0) {
+    while(context.width >= 0) {
       align_lines(context, tokens_list);
 
       context.width = get_alignment_width(tokens_list);
