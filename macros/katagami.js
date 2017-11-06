@@ -5,7 +5,8 @@
   var snippet_dirs = [
     shell.SpecialFolders('MyDocuments'),
     user_env('HOMEPATH'),
-    user_env('HOME')
+    user_env('HOME'),
+    fsys.GetParentFolderName(Editor.ExpandParameter('$S'))
   ];
 
   var strftime = function(format) {
@@ -43,7 +44,7 @@
 
     file.Close();
 
-    var pattern_snip_name = /^snippet\s+(\S+).*/;
+    var pattern_snip_name = /^snippet\s+(\S+).*$/;
     var pattern_snip_body = /^(?:    |\t)(.*)/;
     var snippets = {};
     var last_name = '';
@@ -90,6 +91,9 @@
       if(fsys.FolderExists(dir_path)) {
         enum_snippets(dir_path, items);
       }
+    }
+
+    return items;
   };
 
   var items_to_menu = function(items) {
