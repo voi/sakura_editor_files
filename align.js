@@ -14,14 +14,6 @@
     Editor.MoveCursor( line_end, column_end, 1 );
   };
 
-  var get_line_code = function() {
-    return ['\r\n', '\r', '\n'][Editor.GetLineCode()];
-  };
-
-  var trim_ = function(str) {
-    return str.replace(/^\s*|\s*$/g, '');
-  };
-
   var tokenize = function(context, lines) {
     var tokens_list = [];
 
@@ -66,6 +58,17 @@
   };
 
   var parse_args = function(cmdline) {
+    // <http://www.m-bsys.com/code/javascript-repeatstring>
+    var padding_space = function(base_width) {
+      return Array(Math.max(this.width - base_width, 0)).join(' ');
+    };
+
+    var padding_tab = function(base_width) {
+      var margin = Math.max(this.width - base_width, 0);
+
+      return Array(parseInt(margin / this.tabstop) + ((margin % this.tabstop > 0) ? 2 : 1)).join('\t');
+    };
+
     // ----------------
     // -g   global:        align all tokens
     // -1   1st:           align first token (default)
@@ -82,32 +85,6 @@
     // -n   without space: not separete pattern
     // -s   with space:    separete pattern (default)
     // ----------------
-    var parser = {
-      'cmdline': trim_(cmdline),
-      'get': function() {
-        var str = '';
-        this.cmdline = trim_(this.cmdline.replace(/^-[g1twahersn]\b/, function(c) {
-          str = c;
-        }));
-
-        return (str.length > 0 ? str : this.cmdline);
-      },
-      'has_opt': function() {
-        return /^-[g1twahersn]\b/.test(this.cmdline);
-      }
-    };
-
-    // <http://www.m-bsys.com/code/javascript-repeatstring>
-    var padding_space = function(base_width) {
-      return Array(Math.max(this.width - base_width, 0)).join(' ');
-    };
-
-    var padding_tab = function(base_width) {
-      var margin = Math.max(this.width - base_width, 0);
-
-      return Array(parseInt(margin / this.tabstop) + ((margin % this.tabstop > 0) ? 2 : 1)).join('\t');
-    };
-
     var context = {
       'pattern': '',
       'sub': '\f$&',
@@ -116,15 +93,15 @@
       'width': 0,
       'with_space': true
     };
-    var is_global  = false;
+    var opt_global  = '';
     var use_regexp = false;
     var tab_width  = Editor.GetStrWidth('\t');
 
-    while(parser.has_opt()) {
-      var opt = parser.get();
+    var opt_pat = cmdline.replace(/^\s*((?:-[g1twahersn]\s+)*)/, '$1\n').split(/\n/);
 
-      if     (opt === '-g'){ is_global = true; }
-      else if(opt === '-1'){ is_global = false; }
+    for(var opt in opt_pat[0].split(/\s+/)) {
+      if     (opt === '-g'){ opt_global = 'g'; }
+      else if(opt === '-1'){ opt_global = ''; }
       else if(opt === '-t'){ context.tabstop = tab_width; context.padding = padding_tab; }
       else if(opt === '-w'){ context.tabstop = 1; context.padding = padding_space; }
       else if(opt === '-a'){ context.sub = '$&\f'; }
@@ -136,19 +113,19 @@
     }
 
     if(use_regexp) {
-      context.pattern = parser.cmdline;
+      context.pattern = new RegExp(opt_pat[1].replace(/^\s*|\s*$/g, ''), opt_global);
     }
     else {
-      context.pattern = parser.cmdline.replace(/[\\\/\[\]\(\)\{\}\?\+\*\|\.\^\$]/g, '\\$&');
+      context.pattern = new RegExp(opt_pat[1]
+        .replace(/[\\\/\[\]\(\)\{\}\?\+\*\|\.\^\$]/g, '\\$&')
+        .replace(/^\s*|\s*$/g, ''), opt_global);
     }
-
-    context.pattern = new RegExp(context.pattern, (is_global ? 'g' : ''));
 
     return context;
   };
 
   var align = function(cmdline) {
-    var line_code = get_line_code();
+    var line_code = ['\r\n', '\r', '\n'][Editor.GetLineCode()];
     var context = parse_args(cmdline);
 
     if(context.pattern === '') {

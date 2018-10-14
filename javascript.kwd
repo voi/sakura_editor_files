@@ -1,0 +1,18 @@
+﻿// Javascript キーワード定義ファイル
+// CASE=False
+
+break
+case
+continue
+default
+do
+else
+for
+function
+if
+in
+return
+switch
+var
+while
+with

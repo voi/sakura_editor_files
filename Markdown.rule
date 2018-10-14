@@ -1,0 +1,8 @@
+;Title=Markdown
+;Mode=RegexReplace
+# (.*) /// $1 /// Section1,Lv=1
+## (.*) /// $2 /// Section2,Lv=2
+### (.*) /// $3 /// Section3,Lv=3
+#### (.*) /// $4 /// Section4,Lv=4
+##### (.*) /// $5 /// Section5,Lv=5
+###### (.*) /// $6 /// Section6,Lv=6

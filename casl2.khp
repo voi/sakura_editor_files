@@ -1,0 +1,36 @@
+START /// [実行開始番地] プログラムの始まりと入口名、実行開始番地を示す。ラベル必須
+END /// プログラムの終わりを示す ラベル不可
+DS /// 語数 領域を確保。語数を10進数で指定。語数は0も可
+DC /// 定数[,定数…] 領域を確保し初期値を設定
+IN /// 入力領域,文字数 文字列を入力する。文字数は入力文字数を受け取る1語の領域のラベル
+OUT /// 出力領域,文字数 文字列を出力する。文字数は出力文字数を格納した1語の領域のラベル
+RPUSH /// GR1～GR7をPUSH
+RPOP /// GR7～GR1をPOP
+LD /// `LD r1,r2` r2の内容をr1へロード\n`LD r,addr[,x]` 実効アドレスの内容をrへロード
+ST /// `ST r,addr[,x]` rの内容を実効アドレスへストア
+LAD /// `LAD r,addr[,x]` 実効アドレスをrへロード
+ADDA /// `ADDA r1,r2`\n`ADDA r,addr[,x]` 符号つき加算
+ADDL /// `ADDL r1,r2`\n`ADDL r,addr[,x]` 符号なし加算
+SUBA /// `SUBA r1,r2`\n`SUBA r,addr[,x]` 符号つき減算
+SUBL /// `SUBL r1,r2`\n`SUBL r,addr[,x]` 符号なし減算
+AND /// `AND r1,r2`\n`AND r,addr[,x]` 論理積
+OR /// `OR r1,r2`\n`OR r,addr[,x]` 論理和
+XOR /// `XOR r1,r2`\n`XOR r,addr[,x]` 排他的論理和
+CPA /// `CPA r1,r2`\n`CPA r,addr[,x]` 符号つき比較
+CPL /// `CPL r1,r2`\n`CPL r,addr[,x]` 符号なし比較
+SLA /// `SLA r,addr[,x]` 符号つき左シフト
+SRA /// `SRA r,addr[,x]` 符号つき右シフト
+SLL /// `SLL r,addr[,x]` 符号なし左シフト
+SRL /// `SRL r,addr[,x]` 符号なし右シフト
+JPL /// `JPL addr[,x]` プラス（SF=0かつZF=0）のとき分岐
+JMI /// `JMI addr[,x]` マイナス（SF=1）のとき分岐
+JNZ /// `JNZ addr[,x]` 非ゼロ（ZF=0）のとき分岐
+JZE /// `JZE addr[,x]` ゼロ（ZF=1）のとき分岐
+JOV /// `JOV addr[,x]` オーバーフロー（OF=1）のとき分岐
+JUMP /// `JUMP addr[,x]` 無条件に分岐
+PUSH /// `PUSH addr[,x]` 実効アドレスをPUSH (実効アドレスの内容ではない。)
+POP /// `POP r` rへPOP
+CALL /// `CALL addr[,x]` PRをPUSHし実効アドレスへ分岐
+RET /// PRをPOP
+SVC /// `SVC addr[,x]` スーパーバイザーコール
+NOP /// なにもしない
